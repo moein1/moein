@@ -1,0 +1,40 @@
+﻿<link href="../stylesheets/bootstrap.css" rel="stylesheet" />
+
+<div class="container" style="margin-top:60px">
+    <div class="row">
+        <!--messages part-->
+        <div class="col-md-10">
+            <div class="panel">
+                <div class="panel-heading">
+                    <h4 class="text-center">Chat Room</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="item" ng-repeat="message in messages">
+                        <span>{{message.user+' : '+message.text}}</span>
+                    </div>
+                </div>
+                <div class="navbar-fixed-bottom navbar">
+                    <form class="well form-group" ng-submit="sendMessage()">
+                        <input class="form-control" type="text" ng-model="message" />
+                        <input type="submit" class="btn-success btn btn-default" value="Send" />
+                    </form>
+                </div>
+            </div>
+            
+        </div>
+        <!--list of users-->
+        <div class="col-md-2">
+            <div class="panel">
+                <div class="panel-heading">
+                    <h4 class="text-center">User List</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="item" ng-repeat="user in users">
+                        <span class="bg-info" >{{user}}</span>
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

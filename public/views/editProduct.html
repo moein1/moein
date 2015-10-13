@@ -1,0 +1,30 @@
+﻿<link href="../stylesheets/bootstrap.css" rel="stylesheet" />
+<div class="panel" style="margin-top:20px">
+    <div class="panel-heading">
+        <h4>Editing product</h4>
+    </div>
+    <div class="panel-body">
+        <div class="form-group">
+            <label>Name:</label>
+            <input type="text" class="form-control" ng-model="Currentproduct.name" placeholder="Name"  required/>
+        </div>
+        <div class="form-group">
+            <label>Category</label>
+            <input class="form-control" type="text" ng-model="Currentproduct.category" placeholder="Category" required/>
+        </div>
+        <div class="form-group">
+            <label>Price</label>
+            <input class="form-control" type="number" ng-model="Currentproduct.price"   required/>
+        </div>
+        
+        <div class="panel">
+            <div class="panel-body">
+                <div class="btn-group">
+                    <button class="btn-primary btn-default btn" ng-click="Insert()" ng-if="insertMode" style="width:100px;">Add</button>
+                    <button class="btn-primary btn-default btn" ng-click="Update()" ng-if="!insertMode" style="width:100px;">Update</button>
+                    <button class="btn-primary btn-default btn" ng-click="cancel()" style="margin-left:20px;width:100px;">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

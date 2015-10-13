@@ -1,0 +1,21 @@
+﻿<!DOCTYPE html>
+<html ng-app="testApp">
+<head>
+    <title></title>
+    <script src="../javascripts/vendors/angular.js"></script>
+    <script src="../controllers/unitTest.js"></script>
+    <link href="../stylesheets/bootstrap.css" rel="stylesheet" />
+</head>
+<body  ng-controller="unitTestController">
+    <div class="panel-default panel">
+        <div class="panel-body">
+            <p>Counter :{{counter}}</p>
+            <p>Interval counter :{{intervalCounter}}</p>
+            <p>Timer counter{{timerCounter}}</p>
+            <p>
+                <button class="btn-default btn" ng-click="increment()">Increment</button>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,261 @@
+﻿<!DOCTYPE html>
+<html ng-app="productApp">
+<head>
+    <base href="/" />
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="icon" type="image/png" href="images/favicon.png" />
+    <title>Moein Social Network</title>
+    <!--<link href="stylesheets/bootstrap.css" rel="stylesheet" />
+    <link href="stylesheets/bootstrap-theme.css" rel="stylesheet" />
+    <link href="stylesheets/elegant-icons-style.css" rel="stylesheet" />
+    <link href="stylesheets/font-awesome.css" rel="stylesheet" />
+    <link href="stylesheets/line-icons.css" rel="stylesheet" />
+    <link href="stylesheets/productStyle.css" rel="stylesheet" />
+    <link href="stylesheets/animations.css" rel="stylesheet" />
+   <link href="stylesheets/style_nice.css" rel="stylesheet" />-->
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/styles2.min.css">
+    <link href="stylesheets/bootstrap-theme.css" rel="stylesheet" />
+    <link href="stylesheets/style_nice.css" rel="stylesheet" />
+   
+</head>
+<body>
+   <header>
+   
+   <!--using navbar-fixed-top stick the header on top of the page while scrool down or up the long page-->
+    <div class="navbar-default navbar navbar-fixed-top" role="navigation" ng-controller="navController">
+        <div class="navbar-header">
+           <a class="navbar-brand" href="/">
+               <span class="glyphicon-cloud glyphicon"></span>
+               <strong>Product Manager</strong>
+           </a>
+        </div>
+        <ul class="navbar-nav nav">
+            <li ><a href="/product">Product</a></li>
+            <li ng-show="currentUser"><a href="/">Profile</a></li>
+          
+        </ul>
+        <ul class="navbar-nav nav pull-right" ng-if="!currentUser">
+            <li><a href="/login">Login</a></li>
+            <li><a href="/signup">Signup</a></li>
+        </ul>
+         <!-- notification dropdown start-->
+        <ul class="navbar-nav nav pull-right" ng-if="currentUser">
+            <!--task notifcation start-->
+             <li id="task_notificatoin_bar" class="dropdown">
+                <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                    <i class="icon-task-l"></i>
+                    <span class="badge bg-important">5</span>
+                </a>
+                <ul class="dropdown-menu extended task-bar">
+                    <div class="notify-arrow-blue notify-arrow"></div>
+                    <li>
+                        <p class="blue">You have 5 pending tasks</p>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <div class="task-info">
+                                <div class="desc">Dasign PD</div>
+                                <div class="percent">90%</div>
+                            </div>
+                            <div class="progress-striped progress">
+                                <div class="progress-bar-success progress-bar" role="progressbar" aria-valuenow="90"
+                                     aria-valuemin="0" aria-valuemax="100" style="width: 90%">
+                                    <span class="sr-only">90% complete (success)</span>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <div class="task-info">
+                                <div class="desc">Project1</div>
+                                <div class="percent">30%</div>
+                            </div>
+                            <div class="progress-striped progress">
+                                <div class="progress-bar-success progress-bar" role="progressbar" aria-valuenow="30"
+                                     aria-valuemin="0" aria-valuemax="30" style="width:30%">
+                                    <span class="sr-only">30% complete (success)</span>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="external">
+                        <a href="#">See all tasks</a>
+                    </li>
+                </ul>
+            </li>
+            <!--task notificaton end-->
+            <!--inbox notification start-->
+            <li id="mail_notificatoin_bar" class="dropdown">
+                <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                    <i class="icon-envelope-l"></i>
+                    <span class="badge bg-important">5</span>
+                </a>
+                <ul class="dropdown-menu extended inbox">
+                    <div class="notify-arrow-blue notify-arrow"></div>
+                    <li>
+                        <p class="blue">You have 5 new messages</p>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <span class="photo"><img alt="avatar" src="img/avatar-mini.jpg"</span>
+                            <span class="subject">
+                             <span class="from">Grin martin</span>
+                             <span class="time">1 min</span>
+                            </span>
+                            <span class="message">
+                                I realy like this admin panel
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <!--inbox notification end-->
+            <!--alert notification start-->
+             <li id="alert_notificatoin_bar" class="dropdown">
+                <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+
+                    <i class="icon-bell-l"></i>
+                    <span class="badge bg-important" ng-show="askedFriends.length>0">{{askedFriends.length}}</span>
+                </a>
+                <ul class="dropdown-menu extended inbox">
+                    <div class="notify-arrow-blue notify-arrow"></div>
+                    <li>
+                        <p class="blue" ng-show="askedFriends.length>0">You have {{askedFriends.length}}  friend Request</p>
+                    </li>
+                    <li ng-repeat="askFriend in askedFriends">
+                        <a href="#">
+                           
+                            <span class="photo"><img src="img/{{askFriend.photoUrl}}" /></span>
+                            <span class="subject">
+                            <span class="from">{{askFriend.fullName.first+' '+askFriend.fullName.last}}</span>
+                            <span class="time">{{askFriend.updated|fromNow}}</span>
+                            </span>
+                            <span class="message">
+                                Please add me as your friend
+                            </span>
+                             
+                        </a>
+                    </li>
+                    <li>
+                        <p class="blue" ng-show="acceptFriends.length>0">You have {{acceptFriends.length}} friend</p>
+                    </li>
+                    <li ng-repeat="acceptFriend in acceptFriends">
+                        <a href="/">
+                            <span class="photo"><img src="img/{{acceptFriend.photoUrl}}" /></span>
+                            <span class="subject">
+                                <span class="from">{{acceptFriend.fullName.first+' '+acceptFriend.fullName.last}}</span>
+                                <span class="time">{{acceptFriend.updated|fromNow}}</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/">
+                            You can see all your friends in profile page
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <!--alert notification end-->
+            <!--user login drop down start-->
+            <li class="dropdown">
+                <a data-toggle="dropdown" class="dropdown-toggle" href="/">
+                    <span class="profile-ava">
+                        <img alt="avatar" src="img/{{currentUser.uploadedFile}}" />
+                    </span>
+                    <span class="username" ng-bind="currentUser.name"></span>
+                    <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu extended logout">
+                    <div class="log-arrow-up"></div>
+                    <li class="eborder-top">
+                        <a href="/"><i class="icon_profile"></i>My profile</a>
+                    </li>
+                    <li>
+                        <a href="/"><i class="icon_mail_alt"></i>My inbox</a>
+                    </li>
+                    <li>
+                        <a href="/"><i class="icon_clock_alt"></i>Timeline</a>
+                    </li>
+                    <li>
+                        <a href="/chatting"><i class="icon_key_alt"></i>Chats</a>
+                    </li>
+                    <li><a href="/uploadImage"><i class="icon_image"></i>Uplaod Image</a></li>
+                    <li>
+                        <a href="javascript:void(0)" ng-click="logout()"><i class="icon-key-alt"></i>Logout</a>
+                    </li>
+                </ul>
+            </li>
+            <!--user login drop down-->
+        </ul>
+        <!--end of notification dropdown-->
+         <!--this place has been added for self create alerting-->
+        <div  class="statusRow">
+        <div class="label" data-ng-class="alertClass" data-ng-show="alertStatus">
+            <span class="glyphicon-thumbs-up glyphicon"></span>
+            <b ng-bind="alertMesage"></b>
+        </div>
+           
+    </div>
+    </div>
+  </header>
+   
+    
+    
+     <!--we use ngAnimate and angular-animation as js class and animation.ccs for acting this animation-->
+   <div class="slide-animation-container">
+         <div class="slide-animation" ng-view></div>
+    </div>
+  
+    <div data-wc-overlay data-wc-overlay-delay="300">
+        
+        <br /><img src="images/spinner.gif" />&nbsp;&nbsp;Loading
+    </div>
+    
+    <script src="app2.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="templates.js"></script>
+  <!--  <script src="javascripts/vendors/angular.js"></script>
+     <script src="javascripts/vendors/angular-messages.js"></script>
+    <script src="javascripts/vendors/angular-resource.js"></script>
+    <script src="javascripts/vendors/angular-route.js"></script>
+    <script src="javascripts/vendors/angular-ui-bootstrap.js"></script>
+    <script src="javascripts/vendors/angular-animate.js"></script>
+    <script src="javascripts/vendors/angular-cookies.min.js"></script>
+    <script src="javascripts/vendors/moment.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+
+    <script src="controllers/productController.js"></script>
+    <script src="controllers/editProductContrller.js"></script>
+    <script src="controllers/loginController.js"></script>
+    <script src="controllers/signupController.js"></script>
+    <script src="controllers/navbarController.js"></script>
+    <script src="controllers/profileController.js"></script>
+    <script src="controllers/uploadFileCtrl.js"></script>
+    <script src="controllers/chatController.js"></script>
+    <script src="controllers/forgetPasswordController.js"></script>
+    <script src="controllers/resetPasswordController.js"></script>
+
+    <script src="services/socket.js"></script>
+    <script src="services/productService.js"></script>
+    <script src="services/alertingService.js"></script>
+    <script src="services/modalService.js"></script>
+    <script src="services/authService.js"></script>
+    <script src="services/profileService.js"></script>
+    <script src="services/fileUpload.js"></script>
+
+
+    <script src="directives/wcOverly.js"></script>
+    <script src="directives/repeatPassword.js"></script>
+    <script src="directives/passwordStrength.js"></script>
+    <script src="directives/uniqueEmail.js"></script>
+    <script src="directives/fileModel.js"></script>
+
+    <script src="filter/fromNow.js"></script>-->
+
+</body>
+</html>
