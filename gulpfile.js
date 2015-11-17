@@ -6,8 +6,10 @@ plumber=require('gulp-plumber'),
 gulpif=require('gulp-if'),
 ngAnnotate=require('gulp-ng-annotate'),
 uglify=require('gulp-uglify'),
+templateCache = require('gulp-angular-templatecache'),
 header=require('gulp-header');
 var csso = require('gulp-csso');
+
 
 //var templateCache = require('gulp-angular-templatecache');
 
@@ -65,11 +67,11 @@ gulp.task('styles',function () {
 });
 
 /*minify tempalte cache*/
-//gulp.task('template2', function () {
- //  gulp.src('public/views/**/*.html')
-  /*   .pipe(templateCache({ root: 'views', module: 'productApp' }))
+gulp.task('template2', function () {
+   gulp.src('public/views/**/*.html')
+  .pipe(templateCache({ root: 'views', module: 'productApp' }))
       .pipe(gulp.dest('public'));
-});*/
+});
 
 gulp.task('watch',function () {
     //watching any change in javascript files

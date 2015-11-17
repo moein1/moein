@@ -22,20 +22,20 @@
    
 </head>
 <body>
-   <header>
+   <header ng-cloak style="height:20%;position:relative;">
    
    <!--using navbar-fixed-top stick the header on top of the page while scrool down or up the long page-->
     <div class="navbar-default navbar navbar-fixed-top" role="navigation" ng-controller="navController">
         <div class="navbar-header">
            <a class="navbar-brand" href="/">
                <span class="glyphicon-cloud glyphicon"></span>
-               <strong>Product Manager</strong>
+               <strong>Moein Social Network</strong>
            </a>
         </div>
         <ul class="navbar-nav nav">
-            <li ><a href="/product">Product</a></li>
-            <li ng-show="currentUser"><a href="/">Profile</a></li>
-          
+            <!--<li ><a href="/product">Product</a></li>-->
+            <li ng-if="currentUser"><a class="btn btn-default btn-lg" href="/">Profile</a></li>
+            <li ng-if="currentUser"><a class="btn btn-default btn-lg" href="/chatting">Online Chat</a></li>
         </ul>
         <ul class="navbar-nav nav pull-right" ng-if="!currentUser">
             <li><a href="/login">Login</a></li>
@@ -43,77 +43,6 @@
         </ul>
          <!-- notification dropdown start-->
         <ul class="navbar-nav nav pull-right" ng-if="currentUser">
-            <!--task notifcation start-->
-             <li id="task_notificatoin_bar" class="dropdown">
-                <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                    <i class="icon-task-l"></i>
-                    <span class="badge bg-important">5</span>
-                </a>
-                <ul class="dropdown-menu extended task-bar">
-                    <div class="notify-arrow-blue notify-arrow"></div>
-                    <li>
-                        <p class="blue">You have 5 pending tasks</p>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <div class="task-info">
-                                <div class="desc">Dasign PD</div>
-                                <div class="percent">90%</div>
-                            </div>
-                            <div class="progress-striped progress">
-                                <div class="progress-bar-success progress-bar" role="progressbar" aria-valuenow="90"
-                                     aria-valuemin="0" aria-valuemax="100" style="width: 90%">
-                                    <span class="sr-only">90% complete (success)</span>
-                                </div>
-                            </div>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <div class="task-info">
-                                <div class="desc">Project1</div>
-                                <div class="percent">30%</div>
-                            </div>
-                            <div class="progress-striped progress">
-                                <div class="progress-bar-success progress-bar" role="progressbar" aria-valuenow="30"
-                                     aria-valuemin="0" aria-valuemax="30" style="width:30%">
-                                    <span class="sr-only">30% complete (success)</span>
-                                </div>
-                            </div>
-                        </a>
-                    </li>
-                    <li class="external">
-                        <a href="#">See all tasks</a>
-                    </li>
-                </ul>
-            </li>
-            <!--task notificaton end-->
-            <!--inbox notification start-->
-            <li id="mail_notificatoin_bar" class="dropdown">
-                <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                    <i class="icon-envelope-l"></i>
-                    <span class="badge bg-important">5</span>
-                </a>
-                <ul class="dropdown-menu extended inbox">
-                    <div class="notify-arrow-blue notify-arrow"></div>
-                    <li>
-                        <p class="blue">You have 5 new messages</p>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <span class="photo"><img alt="avatar" src="img/avatar-mini.jpg"</span>
-                            <span class="subject">
-                             <span class="from">Grin martin</span>
-                             <span class="time">1 min</span>
-                            </span>
-                            <span class="message">
-                                I realy like this admin panel
-                            </span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            <!--inbox notification end-->
             <!--alert notification start-->
              <li id="alert_notificatoin_bar" class="dropdown">
                 <a data-toggle="dropdown" class="dropdown-toggle" href="#">
@@ -199,17 +128,18 @@
             <b ng-bind="alertMesage"></b>
         </div>
            
-    </div>
+       </div>
     </div>
   </header>
    
     
     
      <!--we use ngAnimate and angular-animation as js class and animation.ccs for acting this animation-->
-   <div class="slide-animation-container">
+   <div class="slide-animation-container" style="padding-top:70px;padding-left:30px;padding-right:30px;height:70%;position:relative;">
          <div class="slide-animation" ng-view></div>
+         <div class="footer" style="float:left;">Copyright(c) 2015 Powered By Mohammad Karimi</div>
     </div>
-  
+    
     <div data-wc-overlay data-wc-overlay-delay="300">
         
         <br /><img src="images/spinner.gif" />&nbsp;&nbsp;Loading
@@ -217,7 +147,7 @@
     
     <script src="app2.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="templates.js"></script>
+    <!--<script src="templates.js"></script>-->
   <!--  <script src="javascripts/vendors/angular.js"></script>
      <script src="javascripts/vendors/angular-messages.js"></script>
     <script src="javascripts/vendors/angular-resource.js"></script>

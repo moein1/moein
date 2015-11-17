@@ -10,7 +10,7 @@ var productSchema = new Schema({
     name: { type: String, required: true, trim: true },
     category: { type: String, required: true, trim: true },
     price: { type: Number, required: true },
-    id: { type: Number, required: true, unique: true }
+    id: { type: Number , unique: true }
 });
 
 //settingb inex
