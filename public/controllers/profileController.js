@@ -1,7 +1,17 @@
 ﻿angular.module('productApp').
 controller('profileController', ['$scope', '$rootScope', '$location', 'profileService', 'alertingService',
-    'modalService', '$cookieStore', 'fileUpload','$http',
-    function ($scope, $rootScope, $location, profileService, alertingService, modalService, $cookieStore, fileUpload, $http) {
+    'modalService', '$cookieStore', 'fileUpload','$http','socket',
+    function ($scope, $rootScope, $location, profileService, alertingService,
+     modalService, $cookieStore, fileUpload, $http , socket) {
+
+        if(!$rootScope.currentUser){
+         $location.path('/login')
+        }
+        if ($rootScope.currentUser && !$rootScope.currentProfile){
+            getDesiredFriends($rootScope.currentUser.userId);
+            console.log('this is refres')
+           // getRequestedFriends();
+        }
 
         var uploadUrl = '/api/uploadFile';
        // $scope.currentImage;
@@ -37,19 +47,16 @@ controller('profileController', ['$scope', '$rootScope', '$location', 'profileSe
             }).success(function (result) {
                 console.log(result);
                 if (result.status) {
-                    console.log('upload file successfully');
                     alertingService.startAlert('ok', 'Your image has been uploaded successfully please Press Save');
                     $scope.uploadMessage = 'Your image has been uploaded successfully please Press Save button for change your profile picture';
                     $scope.currentImage = files[0].name;
                 } else {
-                    console.log(result.message);
                     alertingService.startAlert('error', result.message);
                     $scope.currentImage = '';
                 }
 
 
             }).error(function (error) {
-                console.log('upload file failed');
                 alertingService.startAlert('error', 'Upload image failed');
             });
             //}
@@ -57,24 +64,22 @@ controller('profileController', ['$scope', '$rootScope', '$location', 'profileSe
         };
    
         $scope.save = function () {
-            console.log(document.getElementById('uploadFile').files[0]);
             if (document.getElementById('uploadFile').files[0]) {
                 var uploadfile = document.getElementById('uploadFile').files[0].name;
                
-                $rootScope.currentUser.uploadedFile = uploadfile;
+                $rootScope.currentProfile.uploadedFile = uploadfile;
             }
             
            
             console.log(name);
-            profileService.updateProfile($rootScope.currentUser).then(
+            profileService.updateProfile($rootScope.currentProfile).then(
                  function (result) {
                      if (result) {
-                         console.log('updating profile in last stage befr alerting message');
                          //update activity and friend activty
-                         getDesiredFriends($scope.currentUser._id);
+                         //getDesiredFriends($rootScope.currentProfile._id);
+                         $rootScope.currentProfile.uploadedFile = uploadfile;
                          alertingService.startAlert('ok', 'Your profile has been updated successfully');
                      } else {
-                         console.log('error updating profile');
                          alertingService.startAlert('error', 'Updatin profile failed');
                      }
                  });
@@ -104,9 +109,8 @@ controller('profileController', ['$scope', '$rootScope', '$location', 'profileSe
         $scope.addStatus = function () {
             //we should send the satus and the current user id and the serveer can add the current date itself
            
-            profileService.addStatus({ status: $scope.newStatus.text }, $rootScope.currentUser._id).then(function (result) {
+            profileService.addStatus({ status: $scope.newStatus.text }, $rootScope.currentProfile._id).then(function (result) {
                 if (result) {
-                    console.log('add new status to account successfully');
                     //third approach is getting update activity bck from servr
                     $scope.currentActivity = result.activities;
                     $scope.currentStatus = result.status;
@@ -114,23 +118,22 @@ controller('profileController', ['$scope', '$rootScope', '$location', 'profileSe
 
 
                     var newStatus = {
-                        fullName: $rootScope.currentUser.fullName,
+                        fullName: $rootScope.currentProfile.fullName,
                         status: $scope.newStatus.text,
-                        photoUrl: $rootScope.currentUser.uploadedFile,
+                        photoUrl: $rootScope.currentProfile.uploadedFile,
                         added: new Date(),
-                        accountId:$rootScope.currentUser._id
+                        accountId:$rootScope.currentProfile._id
                     };
                     tempStatus.push(newStatus);
                     $cookieStore.put('tempStatus', tempStatus);
-                    $rootScope.currentUser.status.push(newStatus);
-                    $rootScope.currentUser.activity.push(newStatus);
+                    $rootScope.currentProfile.status.push(newStatus);
+                    $rootScope.currentProfile.activity.push(newStatus);
                     //it this case if you refresh the page the currently change information
                     //can not be seen so we must store this just added data to a temperary place
                     
                     alertingService.startAlert('ok', 'new status added to your profile successfully');
                     $scope.newStatus.text = '';
                 } else {
-                    console.log('adding status failed');
                     alertingService.startAlert('error', 'adding new status to your account failed');
                 }
             });
@@ -143,38 +146,26 @@ controller('profileController', ['$scope', '$rootScope', '$location', 'profileSe
         function getDesiredFriends(accountId) {
             profileService.getDesiredFriends(accountId).then(function (result) {
                 if (result) {
-                    //console.log('get friends succesfully in controller :'+result.data);
-                    $rootScope.desiredFriends = result.desiredFriends;
-                    $rootScope.askedFriends = result.askedFriends;
-                    $rootScope.requestedFriends = result.recievedFriends;
-                    $rootScope.acceptFriends = result.acceptFriends;
-                    //console.log('accept friends are' + $scope.acceptFriends);
-                    $rootScope.desiredFriendsClass = 'icon_plus';
-                    //adding current activity and state
-                    $rootScope.currentActivity = result.accountActivity;
-                    $rootScope.currentStatus = result.accountState;
-
+                   
                     var yourLikes = [];
                     var yourComments = [];
                     //get the list of your like and comment
                     for (var i = 0; i < $rootScope.currentActivity.length; i++) {
                         for (var j = 0; j < $rootScope.currentActivity[i].comments.length; j++) {
-                            if ($rootScope.currentActivity[i].comments[j].accountId == $rootScope.currentUser._id) {
+                            if ($rootScope.currentActivity[i].comments[j].accountId == $rootScope.currentProfile._id) {
                                 //you comment on this status
                                 yourComments.push($rootScope.currentActivity[i]._id);
                             }
                         }
                         //likes list
                         for (var k = 0; k < $rootScope.currentActivity[i].likes.length; k++) {
-                            if ($rootScope.currentActivity[i].likes[k].accountId == $rootScope.currentUser._id) {
+                            if ($rootScope.currentActivity[i].likes[k].accountId == $rootScope.currentProfile._id) {
                                 //your like on this state
                                 yourLikes.push($rootScope.currentActivity[i]._id);
                             }
                         }
                     }
                     
-                    console.log('your comment list' + yourComments);
-                    console.log('your like list' + yourLikes);
                 }
 
             });
@@ -185,9 +176,8 @@ controller('profileController', ['$scope', '$rootScope', '$location', 'profileSe
        // $scope.askedFriends=[];
         //console.log('contact list is :'+ $rootScope.currentUser.contacts);
         function getRequestedFriends() {
-            var contactsList = $rootScope.currentUser.contacts;
+            var contactsList = $rootScope.currentProfile.contacts;
             for (var i = 0; i < contactsList.length; i++) {
-                console.log('status are :' + contactsList[i].status);
                 if (contactsList[i].status == 'recieved') {
                     $scope.requestedFriends.push(contactsList[i]);
                 }
@@ -205,10 +195,10 @@ controller('profileController', ['$scope', '$rootScope', '$location', 'profileSe
         // we must remove this from add friend page and add to friends page
 
         $scope.SendFriendRequest = function (contactId) {
-            profileService.SendFriendRequest($rootScope.currentUser._id, contactId).then(function (result) {
+            profileService.SendFriendRequest($rootScope.currentProfile._id, contactId).then(function (result) {
                 if (result) {
                     alertingService.startAlert('ok', 'Your friend request has been sent successfully');
-                    getDesiredFriends($rootScope.currentUser._id);
+                    getDesiredFriends($rootScope.currentProfile._id);
 
                 } else {
                     alertingService.startAlert('error', 'Sending request friends failed');
@@ -217,11 +207,10 @@ controller('profileController', ['$scope', '$rootScope', '$location', 'profileSe
         }
 
         $scope.AcceptFriend = function (contactId) {
-            profileService.AcceptFriend($rootScope.currentUser._id, contactId).then(function (result) {
+            profileService.AcceptFriend($rootScope.currentProfile._id, contactId).then(function (result) {
                 if (result) {
-                    console.log('you accepted friend request successfully');
                     alertingService.startAlert('ok', 'accepting friend successfully');
-                    getDesiredFriends($rootScope.currentUser._id);
+                    getDesiredFriends($rootScope.currentProfile._id);
                 }
                 else {
                     alertingService.startAlert('error', 'accpeting friend ask failed');
@@ -233,9 +222,8 @@ controller('profileController', ['$scope', '$rootScope', '$location', 'profileSe
         //at this time by using this our status will be shared between all friends
         $scope.shareStatus = function (status) {
             
-            profileService.shareStatus($rootScope.currentUser._id,status).then(function (result) {
+            profileService.shareStatus($rootScope.currentProfile._id,status).then(function (result) {
                 if (result) {
-                    console.log('Your status has been shared successfully');
                     alertingService.startAlert('ok', 'your status shared successfully');
                 } else {
                     alertingService.startAlert('error', 'sharing status with friends failed');
@@ -256,18 +244,17 @@ controller('profileController', ['$scope', '$rootScope', '$location', 'profileSe
             //but for braodcast the message we need
             //originAccount who has sent the status first
             var newComment = {
-                fullName: { first: $scope.currentUser.fullName.first, last: $scope.currentUser.fullName.last },
-                accountId: $scope.currentUser._id,
+                fullName: { first: $rootScope.currentProfile.fullName.first, last: $rootScope.currentProfile.fullName.last },
+                accountId: $rootScope.currentProfile._id,
                 commentText: statusText,
-                photoUrl: $scope.currentUser.uploadedFile,
+                photoUrl: $rootScope.currentProfile.uploadedFile,
                 added: new Date()
             };
             profileService.addCommnet(statusId, originAccountId, newComment).then(function (result) {
                 if (result) {
-                    console.log('Add comment to status successfully');
-                    getDesiredFriends($rootScope.currentUser._id);
+                    console.log('add comment success');
+                    getDesiredFriends($rootScope.currentProfile._id);
                 } else {
-                    console.log('add comment to status failed');
                 }
             });
         }
@@ -276,17 +263,15 @@ controller('profileController', ['$scope', '$rootScope', '$location', 'profileSe
 
             //first we need to create a like object
             var newLike = {
-                fullName: { first: $scope.currentUser.fullName.first, last: $scope.currentUser.fullName.last },
-                accountId: $scope.currentUser._id,
+                fullName: { first: $rootScope.currentProfile.fullName.first, last: $rootScope.currentProfile.fullName.last },
+                accountId: $rootScope.currentProfile._id,
                 added: new Date()
             };
 
             profileService.likeStatus(statusId, originAccountId,newLike).then(function (result) {
                 if (result) {
-                    console.log('Add like to status successfully');
-                    getDesiredFriends($rootScope.currentUser._id);
+                    getDesiredFriends($rootScope.currentUser.userId);
                 } else {
-                    console.log('Add like failed');
                 }
             });
         }
@@ -295,10 +280,10 @@ controller('profileController', ['$scope', '$rootScope', '$location', 'profileSe
             //at the same time we can catch request asked desired and accept friends
             //we can also catch current activity
             if ($rootScope.currentUser)
-                getDesiredFriends($scope.currentUser._id);
+                getDesiredFriends($rootScope.currentUser._id);
            // getRequestedFriends();
         }
 
         //initial function
-        init();
+       // init();
     }]);

@@ -2,13 +2,15 @@
 config(['$locationProvider', '$routeProvider',
     function ($locationProvider, $routeProvider) {
         $locationProvider.html5Mode(true);
-        $routeProvider.when('/product', {
+        $routeProvider.
+       /* when('/product', {
             templateUrl: 'views/main.html',
             controller: 'productCtrl'
         }).when('/productEdit/:productId', {
             templateUrl: 'views/editProduct.html',
             controller: 'editProductCtrl'
-        }).when('/login', {
+        }).*/
+        when('/login', {
             templateUrl: 'views/login.html',
             controller: 'loginController'
         }).when('/signup', {

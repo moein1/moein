@@ -8,7 +8,6 @@ factory('profileService', ['$http', 'ProfilebaseUrl', '$rootScope', '$window',
                 return $http.put(ProfilebaseUrl + 'updateProfile/' + profile._id, profile).success(
                     function (data) {
                         if (data) {
-                            console.log('token is : ' + data.token);
                             //we must update the token that handle curent user
                             //the account and user are the same and must be keep sync during all update
                             $window.localStorage.token = data.token;
@@ -22,7 +21,6 @@ factory('profileService', ['$http', 'ProfilebaseUrl', '$rootScope', '$window',
             addStatus: function (status, accountId) {
                 return $http.put(ProfilebaseUrl + 'addStatus/' + accountId, status).then(
                     function (response) {
-                        console.log('reciv token in aftrer add status is :' + response.data);
                         /*first approch recieve all the account info from server
                         $window.localStorage.token = data.token;
                         var payload = JSON.parse($window.atob(data.token.split('.')[1]));
@@ -39,14 +37,24 @@ factory('profileService', ['$http', 'ProfilebaseUrl', '$rootScope', '$window',
                 return $http.get(ProfilebaseUrl + 'getDesiredFriends/' + accountId).then(
                     function (response) {
                         if (response) {
-                            console.log(response.data);
+                                result = response.data;
+                                $rootScope.desiredFriends = result.desiredFriends;
+                                $rootScope.askedFriends = result.askedFriends;
+                                $rootScope.requestedFriends = result.recievedFriends;
+                                $rootScope.acceptFriends = result.acceptFriends;
+                                $rootScope.desiredFriendsClass = 'icon_plus';
+                                //adding current activity and state
+                                $rootScope.currentActivity = result.accountActivity;
+                                $rootScope.currentStatus = result.accountState;
+                                $rootScope.currentProfile = result.currentProfile;
                             return {
                                 desiredFriends: response.data.desiredFriends,
                                 askedFriends: response.data.askedFriends,
                                 recievedFriends: response.data.recievedFriends,
                                 acceptFriends: response.data.acceptFriends,
                                 accountActivity: response.data.accountActivity,
-                                accountState: response.data.accountState
+                                accountState: response.data.accountState,
+                                currentProfile : response.data.currentProfile
                             };
                         }
                     });
@@ -57,7 +65,6 @@ factory('profileService', ['$http', 'ProfilebaseUrl', '$rootScope', '$window',
                 return $http.put(ProfilebaseUrl + 'sendFriendRequest/' + accountId, { contactId: contactId }).
                     success(
                     function (response) {
-                        console.log('asked friend siccessfully ' + response.status);
                         return true;
                     });
             },
@@ -71,7 +78,6 @@ factory('profileService', ['$http', 'ProfilebaseUrl', '$rootScope', '$window',
             },
             //share status
             shareStatus: function (accountId, status) {
-                console.log('status is:' + status);
                 return $http.put(ProfilebaseUrl + 'shareStatus/' + accountId, status).
                 success(function (response) {
                     console.log('your status shared successfully');
@@ -82,7 +88,6 @@ factory('profileService', ['$http', 'ProfilebaseUrl', '$rootScope', '$window',
             addCommnet: function (statusId, originAccountId,comment) {
                 return $http.put(ProfilebaseUrl + 'addCommnet/' + originAccountId, { statusId: statusId, comment: comment }).
                 success(function (response) {
-                    console.log('Add comment successfully');
                     return true;
                 });
             },
@@ -90,7 +95,6 @@ factory('profileService', ['$http', 'ProfilebaseUrl', '$rootScope', '$window',
             likeStatus: function (statusId, originAccountId, newLike) {
                 return $http.put(ProfilebaseUrl + 'likeStatus/' + originAccountId, { statusId: statusId, newLike: newLike }).
                 success(function (response) {
-                    console.log('Add like successfully');
                     return true;
                 });
             },
@@ -98,7 +102,6 @@ factory('profileService', ['$http', 'ProfilebaseUrl', '$rootScope', '$window',
             uploadImage: function () {
                 return $http.post(ProfilebaseUrl + 'uploadImage/').success(function (response) {
                     if (response) {
-                        console.log('Uplad image successfully' + response);
                         return true;
                     }
                 });

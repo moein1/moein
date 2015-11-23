@@ -1,6 +1,8 @@
 ﻿var mongoose = require('mongoose'),
     Product = require('./models/product'),
-    User = require('./models/user');
+    User = require('./models/user').User,
+    //we use shoer account for create token 
+    ShortAccount = require('./models/user').ShortAccount
 //Account = require('./models/Account');
 
 //encoding thev user and expire dat of that by special token
@@ -37,12 +39,12 @@ module.exports = {
         console.log('**accessDB.login');
         console.log(req_body.email);
         //we shoud use findOne instead of find beacause it return a single user
-        User.findOne({ 'email': req_body.email }, {}, function (err, user) {
+        ShortAccount.findOne({ 'email': req_body.email }, {}, function (err, user) {
             if (!user) {
                 console.log('user name does ont exist');
                 return callback('User does not exist');
             } else {
-                console.log('accessdb.get user : ' + user.password);
+                console.log('accessdb.get user : ' + user);
                 console.log('req_body pass : ' + req_body.password);
                 //var token = createjwttoken(user);
                 // callback(null, token);
@@ -53,7 +55,85 @@ module.exports = {
                     }
                     console.log('is match is  ' + isMatch);
                     var token = createjwttoken(user);
-                    callback(null, token);
+
+                     User.findOne({ 'shortAccountId': user._id }, {}, function (err, account) {
+                        if (!account) {
+                            console.log('Account does not exist');
+                            return callback('Account does not exist');
+                        } else {
+                            console.log('get account successfully');
+                            //now we must decide about serching friend related to this account
+                            //first take 10 friends from your country
+                            var accountActivity = account.activity;
+                            var accountStatus = account.status;
+                            var ExceptFriends = [];
+                            //we need to send asked and recieved firends to client
+                            //in every refresh
+                            //because we do not refresh the user profile in every postbback
+                            var askedFriends = [];
+                            var recievedFriends = [];
+                            var accpetFriends = [];
+                            var countryFilter = account.country;
+                            var occupationFilter = account.occupation;
+                            if (!countryFilter && !occupationFilter) {
+                                return callback('there is no country set');
+                            }
+                           // console.log('country is :' + countryFilter);
+                            //finding friend request in contacts
+                            //we must except this trecieved friend by some special flag
+                            //we must add your accountid as exception
+                            //we must except asked friends too
+                            ExceptFriends.push(account._id);
+                            for (var i = 0; i < account.contacts.length; i++) {
+                                if (account.contacts[i].status == 'recieved' ) {
+                                    ExceptFriends.push(account.contacts[i].accountId);
+                                    recievedFriends.push(account.contacts[i]);
+                                } else if (account.contacts[i].status == 'sent') {
+                                    ExceptFriends.push(account.contacts[i].accountId);
+                                    askedFriends.push(account.contacts[i]);
+                                } else if (account.contacts[i].status == 'accepted') {
+                                    ExceptFriends.push(account.contacts[i].accountId);
+                                    accpetFriends.push(account.contacts[i]);
+                                }
+                                
+                            };
+                            
+                           // console.log('recieved friends are ' + ExceptFriends);
+                            User.find({
+                                $and: [{ $or: [{ 'country': countryFilter }, { 'occupation': occupationFilter }] },
+                                    { '_id': { $not: { $in: ExceptFriends } } }]
+                            },
+                                { '_id': 1, 'fullName.first': 1, 'fullName.last': 1, 'occupation': 1, 'country': 1, 'uploadedFile': 1 }).
+                                limit(10).exec(function (err, desireFriends) {
+                                    if (err) return callback('some error occured in getting friends')
+                                    else {
+                                        console.log('desired friends are ' + desireFriends);
+                                        //at the same time we can carry out cuurent activity and state of account
+                                        console.log('rpofile is '+account);
+                                        return callback(null,
+                                            {
+                                                desireFriends: desireFriends, askedFriends: askedFriends,
+                                                recievedFriends: recievedFriends, acceptFriends: accpetFriends,
+                                                accountActivity: accountActivity, accountState: accountStatus,
+                                                currentProfile : account,
+                                                token:token
+                                            });
+                                    }
+
+                                });
+
+                        }
+                    });
+
+                    //get account status
+                   /* User.findOne({'shortAccountId' : user._id},function (err,profile) {
+                        if(err)
+                            return callback('Error retriving account information');
+                        console.log('token is '+token);
+                        console.log('account is '+profile);
+                        return callback(null,{ token : token , profile : profile })
+                    })*/
+                   
                 
                 })
             }
@@ -61,36 +141,54 @@ module.exports = {
     },
     signup:function(req_body,callback)
     {
-        var user = new User;
-        user.name = req_body.name;
-        user.email = req_body.email;
-        user.password = req_body.password;
-        user.fullName.first = req_body.firstName;
-        user.fullName.last = req_body.lastName;
-        user.country = req_body.country;
-        user.occupation = req_body.occupation;
-        console.log('***accessdb.start signup name ' + req_body);
-        //we need to create an new Account
-        //var account = new Account;
-        //account.email = req_body.email;
-        //account.password = req_body.password;
-        user.save(function (err, user) {
-            if (err) {
-                console.log('error signup :' + user);
-                return callback('signup error');
-               
-            } else {
-                //save new account
-                
-                console.log('new signup user :'+user);
-                return callback(null, user);
+        //create short account for token
+        var shortAccount = new ShortAccount;
+        shortAccount.name = req_body.name;
+        shortAccount.email = req_body.email;
+        shortAccount.password = req_body.password;
+        shortAccount.save(function (err,newAccount) {
+            if(err)
+                return callback('some error signup '+err);
+            if(newAccount){
+                var user = new User;
+                user.shortAccountId = newAccount._id;
+                //user.name = req_body.name;
+                //user.email = req_body.email;
+                //user.password = req_body.password;
+                user.fullName.first = req_body.firstName;
+                user.fullName.last = req_body.lastName;
+                user.country = req_body.country;
+                user.occupation = req_body.occupation;
+                console.log('***accessdb.start signup name ' + req_body);
+                //we need to create an new Account
+                //var account = new Account;
+                //account.email = req_body.email;
+                //account.password = req_body.password;
+                user.save(function (err, user) {
+                    if (err) {
+                        console.log('error signup :' + user);
+                        return callback('signup error');
+                       
+                    } else {
+                        //save new account
+                        //adding userId to shortAccountID
+                        newAccount.userId = user._id;
+                        newAccount.save(function (err,accountwithUserId) {
+                            console.log('new signup user :'+user);
+                            console.log('new ShortAccount '+accountwithUserId);
+                            return callback(null, user);
+                        })
+                       
+                    }
+                });
             }
-        });
+        })
+       
     },
     //forget password
     forgetPassword: function (email, callback) {
         console.log('**localDB forgotpassword start');
-        User.findOne({ email: email }, {}, function (err, user) {
+        ShortAccount.findOne({ email: email }, {}, function (err, user) {
             if (err) {
                return callback('there is some problem in db request');
             }
@@ -108,7 +206,7 @@ module.exports = {
         console.log('Reset passeword start in accessDb');
         console.log('req_body is ' + req_body.accountId);
         console.log('req_body new pass is:' + req_body.newPassword);
-        User.findOne({ '_id': req_body.accountId }, {}, function (err, user) {
+        User.ShortAccount({ '_id': req_body.accountId }, {}, function (err, user) {
             if (!user) {
                 console.log('some problem occured duting change password');
                 return callback('User does not exist');
@@ -131,7 +229,7 @@ module.exports = {
     //check unique email
         checkUniqueEmail: function (email, callback) {
         if (email) {
-            User.findOne({ 'email': email }, {}, function (err, user) {
+            ShortAccount.findOne({ 'email': email }, {}, function (err, user) {
                 if (!user) {
                    return callback(null, false);
                 } else {
@@ -155,7 +253,7 @@ module.exports = {
 
             user.fullName.first = req_body.fullName.first||user.fullName.first;
             user.fullName.last = req_body.fullName.last || user.fullName.last;
-            user.email = req_body.email || user.email;
+            //user.email = req_body.email || user.email;
             user.biography = req_body.biography || user.biography;
             user.birthday = req_body.birthday || user.birthday;
             user.country = req_body.country || user.country;
@@ -172,9 +270,9 @@ module.exports = {
                 } else {
                     console.log('just after update profile ' + user);
                     //we must update the token
-                    var token = createjwttoken(user);
-                    console.log('token is ; ' + token);
-                    return callback(null, token);
+                    //var token = createjwttoken(user);
+                    console.log('token is ; ' + user);
+                    return callback(null, user);
                 }
             });
         });
@@ -229,11 +327,13 @@ module.exports = {
     },
     getDesiredFriends: function (accountId, callback)
     {
+        var profile;
         User.findOne({ '_id': accountId }, {}, function (err, account) {
             if (!account) {
                 console.log('Account does not exist');
                 return callback('Account does not exist');
             } else {
+                profile = account;
                 console.log('get account successfully');
                 //now we must decide about serching friend related to this account
                 //first take 10 friends from your country
@@ -280,13 +380,14 @@ module.exports = {
                     limit(10).exec(function (err, desireFriends) {
                         if (err) return callback('some error occured in getting friends')
                         else {
-                            //console.log('desired friends are ' + desireFriends);
+                            console.log('desired friends are ' + desireFriends);
                             //at the same time we can carry out cuurent activity and state of account
                             return callback(null,
                                 {
                                     desireFriends: desireFriends, askedFriends: askedFriends,
                                     recievedFriends: recievedFriends, acceptFriends: accpetFriends,
-                                    accountActivity: accountActivity, accountState: accountStatus
+                                    accountActivity: accountActivity, accountState: accountStatus,
+                                    currentProfile: profile
                                 });
                         }
 
@@ -294,6 +395,7 @@ module.exports = {
 
             }
         });
+
     },
     sendFriendRequest: function (accountId,contactId, callback)
     {

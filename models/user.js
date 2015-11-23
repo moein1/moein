@@ -53,14 +53,22 @@ var Contact = new mongoose.Schema({
     country: { type: String }
 });
 
+var shortAccountSchema = new mongoose.Schema({
+name:{type:String,required:true,trim : true },
+email : { type: String, required: true, trim: true, unique: true, lowercase: true },
+password:{type : String , required : true, trim :true},
+userId:{type:String}
+})
+
 var userSchema = new Schema({
-    name: { type: String, required: true, trim: true },
+    shortAccountId:{ type : String },
+    //name: { type: String, required: true, trim: true },
     fullName: {
         first: { type: String },
         last: { type: String }
     },
-    email: { type: String, required: true, trim: true, unique: true, lowercase: true },
-    password: { type: String, required: true, trim: true },
+   // email: { type: String, required: true, trim: true, unique: true, lowercase: true },
+   // password: { type: String, required: true, trim: true },
     birthday: {
         type: Date
     },
@@ -79,7 +87,7 @@ var userSchema = new Schema({
 
 //this is a method for encrypting the password befor store in database
 //we use bcrypt middlewaere
-userSchema.pre('save', function (next) {
+shortAccountSchema.pre('save', function (next) {
     console.log('we are in bscrypt password bsessin');
     var user = this;
     //
@@ -97,7 +105,7 @@ userSchema.pre('save', function (next) {
     });
 });
 
-userSchema.methods.comparePassword = function (candidatePassword, cb) {
+shortAccountSchema.methods.comparePassword = function (candidatePassword, cb) {
     bcrypt.compare(candidatePassword, this.password, function (err, isMatch) {
 
         if (err) return cb(err);
@@ -108,5 +116,8 @@ userSchema.methods.comparePassword = function (candidatePassword, cb) {
 
 
 exports.userSchema = userSchema;
-module.exports = mongoose.model('User', userSchema);
+module.exports ={
+    User :  mongoose.model('User', userSchema),
+    ShortAccount : mongoose.model('ShortAccount' , shortAccountSchema)
+}
 

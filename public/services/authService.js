@@ -4,29 +4,29 @@ function ($http, $location, $window, $rootScope, alertingService, $cookieStore) 
     var token = $window.localStorage.token;
     if (token) {
         var payload = JSON.parse($window.atob(token.split('.')[1]));
-        console.log('current user is ' + payload.user);
         
         $rootScope.currentUser = payload.user;
-        var tempSrtatusArrays= $cookieStore.get('tempStatus');
-        if (tempSrtatusArrays) {
-            //adding new added status after login
-            //because we do not want to reload the all the account informastion
-            for (var i = 0; i < tempSrtatusArrays.length; i++) {
-                $rootScope.currentUser.status.push(tempSrtatusArrays[i]);
-                $rootScope.currentUser.activity.push(tempSrtatusArrays[i]);
-            }
-            
-        }
+        
     }
     return {
         login: function (user) {
             return $http.post('/api/login', user).
-            success(function (data) {
-                console.log('token is' + data.token);
-                $window.localStorage.token = data.token;
-                var payload = JSON.parse($window.atob(data.token.split('.')[1]));
-                console.log(payload.user);
+            success(function (result) {
+                $window.localStorage.token = result.token;
+
+                var payload = JSON.parse($window.atob(result.token.split('.')[1]));
                 $rootScope.currentUser = payload.user;
+                $rootScope.currentProfile = result.currentProfile;
+                $rootScope.desiredFriends = result.desireFriends;
+                $rootScope.askedFriends = result.askedFriends;
+                $rootScope.requestedFriends = result.recievedFriends;
+                $rootScope.acceptFriends = result.acceptFriends;
+                $rootScope.desiredFriendsClass = 'icon_plus';
+                //adding current activity and state
+                $rootScope.currentActivity = result.accountActivity;
+                $rootScope.currentStatus = result.accountState;
+                //$rootScope.currentProfile = result.currentProfile;
+
                 //  $rootScope.currentUser = payload.user;
                 $location.path('/');
                 alertingService.startAlert('ok', 'You have loged in successfully');
@@ -39,7 +39,6 @@ function ($http, $location, $window, $rootScope, alertingService, $cookieStore) 
             return $http.post('/api/signup', user).
             success(function (data) {
                 alertingService.startAlert('ok', 'You have signed up successfully');
-                console.log(user);
                 $location.path('/login');
             }).error(function (error) {
                 alertingService.startAlert('error', 'Signed up error');
@@ -59,18 +58,14 @@ function ($http, $location, $window, $rootScope, alertingService, $cookieStore) 
             //console.log(email);
             return $http.post('/api/forgetPassword', email).
             success(function (data) {
-                console.log('You can go to your email address and reset your password');
                 alertingService.startAlert('ok', 'You can go to your email address and reset your password');
             }).error(function (error) {
-                console.log('some error occured during changing pasword');
                 alertingService.startAlert('error', 'Some error occured during changing password proccess');
             });
         },
         resetPassword: function (ResetInfo) {
             return $http.post('/api/resetPassword', ResetInfo).
             success(function (data) {
-                console.log('return data from server after chage password is:' + data.status);
-                console.log('Your password has been changed successfully');
                 alertingService.startAlert('ok', 'Your password changed successfully');
                 $location.path('/login');
             }).error(function (error) {

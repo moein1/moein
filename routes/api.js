@@ -38,13 +38,13 @@ function sendEmail(subject,text,callback) {
 exports.login = function (req, res) {
     console.log('**api login');
 
-    db.login(req.body, function (err, user) {
+    db.login(req.body, function (err, result) {
         if (err) {
             console.log('error in api ' + err);
             //res.json({ token: user });
             res.send(401, err);
         } else {
-            res.send({ token: user });
+            res.send(result);
         }
 
     });
@@ -128,9 +128,6 @@ exports.updateProfile = function (req, res) {
 
 //adding social api
 exports.addStatus = function (req, res) {
-    
-    
-
     console.log('***accessdb.add status start');
     //console.log('status is' + req.body);
     db.addStatus(req.params._id, req.body, function (err, result) {
@@ -162,7 +159,8 @@ exports.getDesiredFriends = function (req, res) {
                 recievedFriends: friends.recievedFriends,
                 acceptFriends: friends.acceptFriends,
                 accountActivity: friends.accountActivity,
-                accountState: friends.accountState
+                accountState: friends.accountState,
+                currentProfile : friends.currentProfile
             });
         }
     });

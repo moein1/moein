@@ -1,42 +1,70 @@
 ﻿angular.module('productApp').
-controller('chatController', ['socket', '$scope','$rootScope', function (socket, $scope,$rootScope) {
+controller('chatController', ['socket', '$scope','$rootScope','$window','$location','profileService',
+ function (socket, $scope,$rootScope,$window,$location,profileService) {
+    console.log('come back to server');
+    $scope.$on('$routeChangeStart', function(next, current) { 
+       console.log('left the room');
 
+       profileService.getDesiredFriends($rootScope.currentUser.userId).then(function (result) {
+                console.log('get friends succss '+$rootScope.currentProfile.fullName.first);
+           var currentUser = $rootScope.currentProfile.fullName.first + ' ' + $rootScope.currentProfile.fullName.last;
+       //we should emit left trigger
+       //to other user in chat and delete your name from chatroom
+        //we must delete this user from list
+         socket.emit('user:left',{
+            user : currentUser
+           })
+        if($scope.users){
+             for (var i = 0; i < $scope.users.length; i++) {
+            if (currentUser == $scope.users[i]) {
+                $scope.users.splice(i, 1);
+              }
+            }
+          
+        }
+       
+       });
+
+       
+     });
+
+    if(!$rootScope.currentUser){
+        console.log('login please ');
+        $location.path('/login');
+    }else if ($rootScope.currentUser && !$rootScope.currentProfile){
+            console.log('we are refresh the page');
+            $location.path('/');
+           
+    }else{
+    
     $scope.messages = [];
     $scope.users = [];
-    //after sart connection in socket service the 
-    //server side has been sent an initial method
-    //by socket.emit('init' 
-    //and we must recive this emit by this on method
-    socket.on('init', function (data) {
-        console.log('initial users ' + data.users);
-        $scope.users = data.users;
-        $scope.users.push($rootScope.currentUser.fullName.first + ' ' + $rootScope.currentUser.fullName.last);
-        $scope.messages.push({
-            user: 'chatRomm',
-            text: 'You are known as ' + $rootScope.currentUser.fullName.first
-        });
-    });
-
-    //in rality we must the username from client side to server
-    //and recive in server and broaadast to all the user that a new user
-    //has joint the room
     
-
+    //trigger first request from client
     socket.emit('user:join', {
-        userName: $rootScope.currentUser.fullName.first + ' ' + $rootScope.currentUser.fullName.last
+      userName: $rootScope.currentProfile.fullName.first + ' ' + $rootScope.currentProfile.fullName.last
     });
 
-    //we must recive the message from server
-    //as joint a new user  socket.broadcast.emit('user:join'
-    //by an on 
+   
+
+    //////forth method after start chat for  you
+    socket.on('you:join',function (data) {
+        console.log('come back afer refresh you:join');
+        $scope.messages.push({
+            user: 'chatRoom',
+            text: 'You are known as ' + $rootScope.currentProfile.fullName.first
+        });
+         $scope.users = data.userNames;
+    })
+    
+    
     socket.on('user:join', function (data) {
-        //console.log('we recive user:join' + data);
+        console.log('come back afer refresh user:join ');
         $scope.messages.push({
             user: 'ChatRoom',
-            text: 'User ' + data.userName + ' has joined'
+            text: 'User ' + data.newUser + ' has joined'
         });
-        $scope.users.push(data.userName);
-
+         $scope.users = data.userNames;
     });
 
     $scope.sendMessage = function () {
@@ -47,7 +75,7 @@ controller('chatController', ['socket', '$scope','$rootScope', function (socket,
         });
         socket.emit('send:message', {
             message: $scope.message,
-            user: $rootScope.currentUser.fullName.first
+            user: $rootScope.currentProfile.fullName.first
         });
     };
 
@@ -73,6 +101,6 @@ controller('chatController', ['socket', '$scope','$rootScope', function (socket,
         });
     });
 
-
+  }
    
 }]);

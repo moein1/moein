@@ -43,7 +43,7 @@ var banner=['/**',
       'public/controllers/*.js',
       'public/filter/*.js',
       'public/directives/*.js'
-    ]).pipe(concat('app2.min.js'))
+    ]).pipe(concat('app.min.js'))
     .pipe(ngAnnotate())
  .pipe(uglify())
  .pipe(header(banner))
@@ -61,13 +61,13 @@ gulp.task('styles',function () {
     ,'public/stylesheets/animations.css'
     //,'public/stylesheets/bootstrap-theme.css'
   //  ,'public/stylesheets/style_nice.css'
-    ]).pipe(concat('styles2.min.css'))
+    ]).pipe(concat('styles.min.css'))
    .pipe(csso())
    .pipe(gulp.dest('public/stylesheets'))
 });
 
 /*minify tempalte cache*/
-gulp.task('template2', function () {
+gulp.task('template', function () {
    gulp.src('public/views/**/*.html')
   .pipe(templateCache({ root: 'views', module: 'productApp' }))
       .pipe(gulp.dest('public'));
@@ -75,13 +75,13 @@ gulp.task('template2', function () {
 
 gulp.task('watch',function () {
     //watching any change in javascript files
-    gulp.watch(['public/**/*.js', '!public/app2.min.js',
-     '!public/template2.js', '!public/javascripts/vendor'], ['minify']);
+    gulp.watch(['public/**/*.js', '!public/app.min.js',
+     '!public/template.js', '!public/javascripts/vendor'], ['minify']);
     //watching any change in styles files
-    gulp.watch(['public/stylesheets/*.css','!public/stylesheets/styles2.min.css'],['styles'])
+    gulp.watch(['public/stylesheets/*.css','!public/stylesheets/styles.min.css'],['styles'])
     //watching views for tempalte
-    //gulp.watch('public/views/**/*.html', ['template2']);
+    gulp.watch('public/views/**/*.html', ['template']);
 });
 
- gulp.task('default',['minify','styles','watch']);
+ gulp.task('default',['minify','styles','template','watch']);
 
