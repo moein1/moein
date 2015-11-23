@@ -1,0 +1,64 @@
+﻿
+<div class="container">
+    <header>
+        <h3><span class="glyphicon-user glyphicon">Products</span></h3>
+    </header>
+    <div class="row">
+        <div class="col-md-10">
+            <div class="navbar">
+                <ul class="navbar-nav nav">
+                    <li>
+                        <a data-ng-click="navigate('/productEdit/0')" ng-show="currentUser">
+                            <span class="glyphicon-plus glyphicon"></span>
+                            Add Product
+                        </a>
+                    </li>
+                </ul>
+    </div>
+        </div>
+    </div>
+    
+</div>
+<div class="panel">
+    <div class="panel-heading">
+        <h4>Product list</h4>
+    </div>
+    <div class="panel-body">
+        <table class="table-bordered table-striped table-condensed table-hover table">
+            <thead>
+              <tr><th ng-click="setOrder('name')"><i class="icon_profile"></i>Name</th>
+                  <th ng-click="setOrder('category')"><i class="icon_cart"></i>category</th>
+                  <th ng-click="setOrder('price')"><i class="icon_currency"></i>Price</th><th><i class="icon_cone"></i></th></tr>
+            </thead>
+            <tbody>
+                <tr ng-if="!products.length">
+                    <td colspan="4"><h4 class="text-center text-danger" ng-bind="noProduct"></h4></td>
+                </tr>
+                <tr ng-if="products.length" ng-repeat="item in products">
+                    <td>{{item.name}}</td>
+                    <td>{{item.category}}</td>
+                    <td>{{item.price|currency}}</td>
+                   
+                    <td >
+                        <a class="btn-success" ng-click="EditProduct(item)" title="Edit"><i class="icon_check_alt2"></i></a>
+                        <a class="btn-danger" ng-click="deleteProduct(item)" title="Delete"><i class="icon_close_alt2"></i></a>
+                        
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="panel">
+            <div class="panel-body">
+                <div class="btn-group">
+                    <a ng-click="selectPage(selectedPage-1)" ng-disabled="selectedPage==1" 
+                        class="btn btn-default" title="Previous Page" >&lt &lt Prev</a>
+                    <a ng-repeat="page in pages" class="btn-primary btn" title="Page{{page}}" style="margin-right:3px;" 
+                        data-ng-click="selectPage(page)" data-ng-class="{'btn-danger':selectedPage==page}">{{page}}</a>
+                    <a ng-click="selectPage(selectedPage+1)" ng-disabled="selectedPage==pageCount" 
+                        class="btn-default btn" title="Next Page">Next &gt &gt</a>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>

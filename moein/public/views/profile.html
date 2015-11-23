@@ -1,0 +1,442 @@
+﻿<div class="row" ng-if="currentUser">
+    <div class="col-lg-12">
+        <h3 class="page-header"><i class="fa-user-md fa"></i>Profile</h3>
+    </div>
+</div>
+<div class="row" ng-if="!currentUser">
+    <div class="col-lg-12">
+        <h3 class="page-header"><i class="fa-user-md fa"></i>Please SignUp or Login</h3>
+    </div>
+</div>
+<div class="row">
+    <!--prfile widget-->
+    <div class="col-lg-12">
+        <div class="profile-widget profile-widget-info">
+            <div class="panel-body" ng-if="currentUser">
+                <div class="col-sm-1 col-lg-1">
+                    
+                     <div class="follow-ava">
+                         <img src="../img/{{currentProfile.uploadedFile}}" alt="profile pic" />
+                     </div>
+                   
+                </div>
+                <div class="follow-info col-lg-4 col-sm-4">
+                   <b ng-bind ="currentProfile.fullName.first"></b>&nbsp;&nbsp;<b ng-bind=" currentProfile.fullName.last"></b>
+                    <p ng-bind="currentUser.email"></p>
+                     <h6 ng-bind="currentProfile.occupation"></h6>
+                    <!--<h6>
+                        <span><i class="icon_clock_alt"></i>11:05 AM</span>
+                        <span><i class="icon_calendar"></i>25.10.13</span>
+                        <span><i class="icon_pin_alt"></i>NY</span>
+                    </h6>-->
+                </div>
+               <!-- <div class="col-lg-2 col-sm-6 follow-info weather-category">
+                            <ul>
+                                <li class="active">
+                                              
+                                    <i class="fa fa-comments fa-2x"> </i><br>
+											  
+									Contrary to popular belief, Lorem Ipsum is not simply
+                                </li>
+										   
+                            </ul>
+                </div>
+				<div class="col-lg-2 col-sm-6 follow-info weather-category">
+                            <ul>
+                                <li class="active">
+                                              
+                                    <i class="fa fa-bell fa-2x"> </i><br>
+											  
+									Contrary to popular belief, Lorem Ipsum is not simply 
+                                </li>
+										   
+                            </ul>
+                </div>
+				<div class="col-lg-2 col-sm-6 follow-info weather-category">
+                            <ul>
+                                <li class="active">
+                                              
+                                    <i class="fa fa-tachometer fa-2x"> </i><br>
+											  
+									Contrary to popular belief, Lorem Ipsum is not simply
+                                </li>
+										   
+                            </ul>
+                </div>-->
+            </div>
+        </div>
+    </div>
+</div>
+<!--page start-->
+
+<div class="row" ng-if="currentUser">
+    <div class="col-lg-12">
+    <section class="panel">
+            <div class="panel-body">
+                <tabset class="tab-content">
+                    <!--Daily activity-->
+                    <tab heading="Daily Activity" class="tab-pane active">
+                        <div class="profile-activity">
+
+                            <div class="act-time" ng-repeat="item in currentActivity">
+                                <div class="activity-body act-in">
+                                    <span class="arrow"></span>
+                                     <div class="text">
+                                         <a href="/" class="activity-img">
+                                             <img class="avatar" src="../img/{{item.photoUrl}}" />
+                                         </a>
+                                         <p class="attribution"><a href="/">{{item.fullName.first+' '+item.fullName.last}}</a>at {{item.added|fromNow}}</p>
+                                         <p>{{item.status}}</p>
+                                         <a ng-click="likeStatus(item._id,item.accountId)" title="Click to like this post"><i class="icon_like" ></i>Like</a>(<span>{{item.likes.length}}</span>)&nbsp;
+                                         <a href="/" title="Click to comment this post"><i class="icon_book"></i>Comment</a>(<span>{{item.comments.length}}</span>)&nbsp;
+                                         <a ng-click="shareStatus(item)" title="Click to share this post"><i class="icon_comment"></i>Share</a>
+                                     </div>
+                                    <!--adding comment-->
+                                    <form class="panel" name="commentFrom">
+                                        <div class=""><span></span>
+                                            <i class="icon_archive"></i>
+                                            <ul class="navbar-nav">
+                                                <li ng-repeat="commenter in item.comments">
+                                                    <a href="/" >{{commenter.fullName.first+' '+commenter.fullName.last+','}}</a>
+                                                </li>
+                                            </ul> 
+                                            <span>Commnet on this post</span>
+                                            
+                                            
+                                        </div>
+                                        <div class="panel-footer">
+                                            <div ng-repeat="comment in item.comments">
+                                                <div class="text">
+                                                  <a href="/" class="activity-img">
+                                                      <img class="" src="../img/{{comment.photoUrl}}" alt="avatar" />
+                                                  </a>
+                                                  <p class="attribution"><a href="/">{{comment.fullName.first+' '+comment.fullName.last}}</a>{{comment.added|fromNow}}</p>
+                                                    <p>{{comment.commentText}}</p>
+                                                    
+                                                 </div>
+                                            </div>
+                                            <div class="panel-default">
+                                                <div class="form-group">
+                                                    <input class="form-control" type="text" name="commentInput"
+                                                         placeholder="Add a comment..." ng-model="item.statusComment" />
+                                                </div>
+                                                <input type="button" class="btn-info btn btn-default" 
+                                                    ng-show="commentFrom.commentInput.$dirty"
+                                                     ng-click="addCommnet(item._id,item.accountId,item.statusComment)"  value="comment"/>
+                                            </div>
+                                        </div>
+
+                                    </form>
+                                </div>
+                            </div>
+                         </div>   
+                        <!--Add new status that mean your own timleline activity-->
+                        <div class="panel">
+                            <div class="panel-heading">
+                               <h3 class="text-center"> Add new status</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="form-group">
+                                    <input class="form-control" type="text" ng-model="newStatus.text" placeholder="New Status" />
+                                </div>
+                                <div class="btn-group">
+                                    <button class="btn-success btn btn-default" ng-click="addStatus()">Add Status</button>
+                                </div>
+                                    
+                            </div>
+                               
+                        </div>
+                    </tab>
+
+                    <!--profile tab-->
+                    <tab heading="Profile" class="tab-pane">
+                        <section class="panel">
+                            <div class="bio-graph-heading">
+                                    <span ng-bind="currentProfile.biography"></span>
+                            </div>
+                            <div class="panel-body bio-graph-info">
+                                <h1>Bio Graph</h1>
+                                <div class="row">
+                                    <div class="bio-row">
+                                        <p><span>First Name </span>: <span ng-bind="currentProfile.fullName.first"></span></p>
+                                    </div>
+                                    <div class="bio-row">
+                                        <p><span>Last Name </span>: <span ng-bind="currentProfile.fullName.last"></span></p>
+                                    </div>                                              
+                                    <div class="bio-row">
+                                        <p><span>Birthday</span>: <span ng-bind="currentProfile.birthday"></span></p>
+                                    </div>
+                                    <div class="bio-row">
+                                        <p><span>Country </span>: <span ng-bind="currentProfile.country"></span></p>
+                                    </div>
+                                    <div class="bio-row">
+                                        <p><span>Occupation </span>:<span ng-bind="currentProfile.occupation"></span></p>
+                                    </div>
+                                    <div class="bio-row">
+                                        <p><span>Email </span><span ng-bind="currentProfile.email"></span></p>
+                                    </div>
+                                    <div class="bio-row">
+                                        <p><span>Mobile </span>: <span ng-bind="currentProfile.mobile"></span></p>
+                                    </div>
+                                    <div class="bio-row">
+                                        <p><span>Phone </span><span ng-bind="currentProfile.phone"></span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </tab>
+                    <!--Edit Profile-->
+                    <tab heading="Edit Profile">
+                         <section class="panel">                                          
+                            <div class="panel-body bio-graph-info">
+                                <h1> Profile Info</h1>
+                                <div class="form-horizontal" role="form">                                                  
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">First Name</label>
+                                        <div class="col-lg-6">
+                                            <input type="text" ng-model="currentProfile.fullName.first" 
+                                                class="form-control" id="f-name" placeholder="First Name">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">Last Name</label>
+                                        <div class="col-lg-6">
+                                            <input type="text" class="form-control" id="l-name" 
+                                                placeholder="Last Name" ng-model="currentProfile.fullName.last">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">About Me</label>
+                                        <div class="col-lg-10">
+                                            <textarea name="" id="" class="form-control" cols="30" rows="5"
+                                                 placeholder="About Me" ng-model="currentProfile.biography"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">Country</label>
+                                        <div class="col-lg-6">
+                                            <input type="text" class="form-control" id="c-name" placeholder="Country"
+                                                ng-model="currentProfile.country">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">Birthday</label>
+                                        <div class="col-lg-6">
+                                            <input type="text" class="form-control" id="b-day" placeholder="Birthday"
+                                                ng-model="currentProfile.birthday">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">Occupation</label>
+                                        <div class="col-lg-6">
+                                            <input type="text" class="form-control" id="occupation" placeholder="Occupation"
+                                                ng-model="currentProfile.occupation">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">Email</label>
+                                        <div class="col-lg-6">
+                                            <input type="text" class="form-control" id="email" placeholder="Email" 
+                                                ng-model="currentUser.email" ng-disabled="true">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">Mobile</label>
+                                        <div class="col-lg-6">
+                                            <input type="text" class="form-control" id="mobile" placeholder="Mobile number"
+                                                ng-model="currentProfile.mobile">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">Phone</label>
+                                        <div class="col-lg-6">
+                                            <input type="text" class="form-control" id="Text1" placeholder="Mobile number"
+                                                ng-model="currentProfile.phone">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">Website URL</label>
+                                        <div class="col-lg-6">
+                                            <input type="text" class="form-control" id="url" placeholder="http://www.demowebsite.com "
+                                                ng-model="currentProfile.websiteUrl">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">Photo Upload2</label>
+                                        <div class="col-lg-6">
+                                          <input type="file" id="uploadFile" name="file" onchange="angular.element(this).scope().uploadFile(this.files)"/><br />
+                                         <!-- <span class="text-center" ng-show="uploadMessage">{{uploadMessage}}</span>-->
+                                            <img ng-src="../img/{{currentImage}}" ng-show="currentImage" />
+                                        </div>
+                                            
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-lg-offset-2 col-lg-10">
+                                            <button type="submit" class="btn btn-primary" ng-click="save()">Save</button>
+                                            <button type="button" class="btn btn-danger" ng-click="cancel()">Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </tab>
+                    <!--Adding Friends-->
+                    <tab heading="Add Friends">
+                        <section class="panel">
+                          <div class="panel-heading">
+                             <h3 class="text-center">Adding Freinds</h3>
+                           </div>
+                            <div class="panel-body bio-graph-info">
+                                <div class="container">
+                                    <div class="cardContainer">
+                                        <div class="col-md-3 col-sm-6"  ng-repeat="desired in desiredFriends">
+                                            <div class="card">
+                                                <div class="cardHeader">
+                                                    <a href="/" class="white">
+                                                        <!--place full name here-->
+                                                        {{desired.fullName.first+' '+desired.fullName.last}}
+                                                    </a>
+                                                </div>
+                                                <div class="cardBody">
+                                                    <div class="clearfix">
+                                                        <div class="pull-left cardBodyLeft">
+                                                            <img src="../img/{{desired.uploadedFile}}" />
+                                                            <span>{{desired.occupation}}</span>
+                                                        </div>
+                                                        <div class="cardBodyRight pull-left">
+                                                            <div class="cardBodyContent" >
+                                                                {{desired.country}}
+
+                                                            </div>
+                                                            <div class="">
+                                                                <a ng-click="SendFriendRequest(desired._id)" class="btn-info">
+                                                                    <i ng-class="desiredFriendsClass" title="Add Friend"></i>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </tab>
+                    <tab heading="Requested Friends">
+                        <section class="panel">
+                            <div class="panel-heading">
+                                <h3>Requested friend List</h3>
+                            </div>
+                            <div class="panel-body bio-graph-info">
+                                <div class="container">
+                                    <div class="cardContainer">
+                                        <div class="col-md-3 col-sm-6" ng-repeat="requestFriend in requestedFriends">
+                                            <div class="card">
+                                                <div class="cardHeader">
+                                                    <a href="/">
+                                                        {{requestFriend.fullName.first+' '+requestFriend.fullName.last}}
+                                                    </a>
+                                                </div>
+                                                <div class="cardBody">
+                                                    <div class="clearfix">
+                                                        <div class="cardBodyLeft pull-left">
+                                                            <img src="../img/{{requestFriend.photoUrl}}" alt="pic" />
+                                                            <span>{{requestFriend.occupation}}</span>
+                                                        </div>
+                                                        <div class="cardBodyRight pull-left">
+                                                            <div class="cardBodyContent">
+                                                                <span>{{requestFriend.updated|fromNow}}</span><br />
+                                                                <span>{{requestFriend.country}}</span>
+                                                                
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </tab>
+                    <tab heading="Asked Friends">
+                        <section class="panel">
+                            <div class="panel-heading">
+                                <h3>Asked Friends</h3>
+                            </div>
+                            <div class="panel-body bio-graph-info">
+                                <div class="container">
+                                    <div class="cardContainer">
+                                        <div class="col-md-3 col-sm-6" ng-repeat="askedFriend in askedFriends">
+                                            <div class="card">
+                                                <div class="cardHeader">
+                                                    <a href="/">
+                                                        {{askedFriend.fullName.first+' '+askedFriend.fullName.last}}
+                                                    </a>
+                                                </div>
+                                                <div class="cardBody">
+                                                    <div class="clearfix">
+                                                        <div class="cardBodyLeft pull-left">
+                                                            <img src="../img/{{askedFriend.photoUrl}}" alt="logo" />
+                                                            <span>{{askedFriend.occupation}}</span>
+                                                        </div>
+                                                        <div class="cardBodyRight pull-left">
+                                                            <span>{{askedFriend.country}}</span><br />
+                                                            <span>{{askedFriend.updated|fromNow}}</span>
+                                                        </div>
+                                                        <div>
+                                                            <a class="btn-success" ng-click="AcceptFriend(askedFriend.accountId)"
+                                                                 title="Accpet Friend"><i class="icon_check_alt2"></i></a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </tab>
+                    <tab heading="Friends">
+                        <div class="panel">
+                            <div class="panel-heading">
+                                <h3 class="text-center">Your Friends</h3>
+                            </div>
+                            <div class="bio-graph-info panel-body">
+                                <div class="container">
+                                    <div class="cardContainer">
+                                        <div class="col-sm-6 col-md-3" ng-repeat="friend in acceptFriends">
+                                            <div class="card">
+                                                <div class="cardHeader">
+                                                    <a href="/">
+                                                        {{friend.fullName.first +' '+friend.fullName.last}}
+                                                    </a>
+                                                </div>
+                                                <div class="cardBody">
+                                                    <div class="clearfix">
+                                                        <div class="cardBodyLeft pull-left">
+                                                            <img src="../img/{{friend.photoUrl}}" alt="logo" />
+                                                            <span>{{friend.occupation}}</span>
+                                                        </div>
+                                                        <div class="cardBodyRight pull-left">
+                                                            <span>{{friend.country}}</span>
+                                                            <br />
+                                                            <span>{{friend.updated|fromNow}}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </tab>
+                </tabset>
+            </div>
+        </section>
+    </div>
+</div>

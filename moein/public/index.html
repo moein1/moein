@@ -1,0 +1,154 @@
+﻿<!DOCTYPE html>
+<html ng-app="productApp">
+<head>
+    <base href="/" />
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="icon" type="image/png" href="images/favicon.png" />
+    <title>Moein Social Network</title>
+    <!--<link href="stylesheets/bootstrap.css" rel="stylesheet" />
+    <link href="stylesheets/bootstrap-theme.css" rel="stylesheet" />
+    <link href="stylesheets/elegant-icons-style.css" rel="stylesheet" />
+    <link href="stylesheets/font-awesome.css" rel="stylesheet" />
+    <link href="stylesheets/line-icons.css" rel="stylesheet" />
+    <link href="stylesheets/productStyle.css" rel="stylesheet" />
+    <link href="stylesheets/animations.css" rel="stylesheet" />
+   <link href="stylesheets/style_nice.css" rel="stylesheet" />-->
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/styles.min.css">
+    <link href="stylesheets/bootstrap-theme.css" rel="stylesheet" />
+    <link href="stylesheets/style_nice.css" rel="stylesheet" />
+   
+</head>
+<body>
+   <header ng-cloak style="height:20%;position:relative;">
+   
+   <!--using navbar-fixed-top stick the header on top of the page while scrool down or up the long page-->
+    <div class="navbar-default navbar navbar-fixed-top" role="navigation" ng-controller="navController">
+        <div class="navbar-header">
+           <a class="navbar-brand" href="/">
+               <span class="glyphicon-cloud glyphicon"></span>
+               <strong>Moein Social Network</strong>
+           </a>
+        </div>
+        <ul class="navbar-nav nav">
+            <!--<li ><a href="/product">Product</a></li>-->
+            <li ng-if="currentUser"><a class="btn btn-default btn-lg" href="/">Profile</a></li>
+            <li ng-if="currentUser"><a class="btn btn-default btn-lg" href="/chatting">Online Chat</a></li>
+        </ul>
+        <ul class="navbar-nav nav pull-right" ng-if="!currentUser">
+            <li><a href="/login">Login</a></li>
+            <li><a href="/signup">Signup</a></li>
+        </ul>
+         <!-- notification dropdown start-->
+        <ul class="navbar-nav nav pull-right" ng-if="currentUser">
+            <!--alert notification start-->
+             <li id="alert_notificatoin_bar" class="dropdown">
+                <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+
+                    <i class="icon-bell-l"></i>
+                    <span class="badge bg-important" ng-show="askedFriends.length>0">{{askedFriends.length}}</span>
+                </a>
+                <ul class="dropdown-menu extended inbox">
+                    <div class="notify-arrow-blue notify-arrow"></div>
+                    <li>
+                        <p class="blue" ng-show="askedFriends.length>0">You have {{askedFriends.length}}  friend Request</p>
+                    </li>
+                    <li ng-repeat="askFriend in askedFriends">
+                        <a href="#">
+                           
+                            <span class="photo"><img src="img/{{askFriend.photoUrl}}" /></span>
+                            <span class="subject">
+                            <span class="from">{{askFriend.fullName.first+' '+askFriend.fullName.last}}</span>
+                            <span class="time">{{askFriend.updated|fromNow}}</span>
+                            </span>
+                            <span class="message">
+                                Please add me as your friend
+                            </span>
+                             
+                        </a>
+                    </li>
+                    <li>
+                        <p class="blue" ng-show="acceptFriends.length>0">You have {{acceptFriends.length}} friend</p>
+                    </li>
+                    <li ng-repeat="acceptFriend in acceptFriends">
+                        <a href="/">
+                            <span class="photo"><img src="img/{{acceptFriend.photoUrl}}" /></span>
+                            <span class="subject">
+                                <span class="from">{{acceptFriend.fullName.first+' '+acceptFriend.fullName.last}}</span>
+                                <span class="time">{{acceptFriend.updated|fromNow}}</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/">
+                            You can see all your friends in profile page
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <!--alert notification end-->
+            <!--user login drop down start-->
+            <li class="dropdown">
+                <a data-toggle="dropdown" class="dropdown-toggle" href="/">
+                    <span class="profile-ava">
+                        <img alt="avatar" src="img/{{currentProfile.uploadedFile}}" />
+                    </span>
+                    <span class="username" ng-bind="currentUser.name"></span>
+                    <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu extended logout">
+                    <div class="log-arrow-up"></div>
+                    <li class="eborder-top">
+                        <a href="/"><i class="icon_profile"></i>My profile</a>
+                    </li>
+                    <li>
+                        <a href="/"><i class="icon_mail_alt"></i>My inbox</a>
+                    </li>
+                    <li>
+                        <a href="/"><i class="icon_clock_alt"></i>Timeline</a>
+                    </li>
+                    <li>
+                        <a href="/chatting"><i class="icon_key_alt"></i>Chats</a>
+                    </li>
+                    <li><a href="/uploadImage"><i class="icon_image"></i>Uplaod Image</a></li>
+                    <li>
+                        <a href="javascript:void(0)" ng-click="logout()"><i class="icon-key-alt"></i>Logout</a>
+                    </li>
+                </ul>
+            </li>
+            <!--user login drop down-->
+        </ul>
+        <!--end of notification dropdown-->
+         <!--this place has been added for self create alerting-->
+        <div  class="statusRow">
+        <div class="label" data-ng-class="alertClass" data-ng-show="alertStatus">
+            <span class="glyphicon-thumbs-up glyphicon"></span>
+            <b ng-bind="alertMesage"></b>
+        </div>
+           
+       </div>
+    </div>
+  </header>
+   
+    
+    
+     <!--we use ngAnimate and angular-animation as js class and animation.ccs for acting this animation-->
+   <div class="slide-animation-container" style="padding-top:70px;padding-left:30px;padding-right:30px;height:70%;position:relative;">
+         <div class="slide-animation" ng-view></div>
+         <div class="footer" style="float:left;">Copyright(c) 2015 Powered By Mohammad Karimi</div>
+    </div>
+    
+    <div data-wc-overlay data-wc-overlay-delay="300">
+        
+        <br /><img src="images/spinner.gif" />&nbsp;&nbsp;Loading
+    </div>
+    
+    <script src="app.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="templates.js"></script>
+  
+
+</body>
+</html>
